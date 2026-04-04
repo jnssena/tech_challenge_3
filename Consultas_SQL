@@ -1,0 +1,431 @@
+# Consulta Qtd_Entrevistados
+WITH base AS (
+    SELECT UF, V1022 AS Situacao_Domicilio FROM tb_setembro
+    UNION ALL
+    SELECT UF, V1022 FROM tb_outubro
+    UNION ALL
+    SELECT UF, V1022 FROM tb_novembro
+)
+
+SELECT 
+    UF,
+    Situacao_Domicilio,
+    COUNT(*) AS Qtd_Entrevistas
+FROM base
+GROUP BY UF, Situacao_Domicilio
+ORDER BY UF, Situacao_Domicilio;
+
+# Consulta Qtd_Sexo
+WITH base AS (
+    SELECT A003 AS Sexo FROM tb_setembro
+    UNION ALL
+    SELECT A003 FROM tb_outubro
+    UNION ALL
+    SELECT A003 FROM tb_novembro
+)
+
+SELECT 
+    Sexo,
+    COUNT(*) AS Qtd_Entrevistas
+FROM base
+GROUP BY Sexo
+ORDER BY Qtd_Entrevistas DESC;
+
+# Consulta Situacao_Trabalho
+SELECT 
+    'Setembro' AS Mes,
+    CASE 
+        WHEN C001 = '1' THEN 'Sim'
+        WHEN C001 = '2' THEN 'Não'
+        ELSE 'Não aplicável'
+    END AS Status_Trabalho,
+    COUNT(*) AS Quantidade
+FROM tb_setembro
+GROUP BY 
+    CASE 
+        WHEN C001 = '1' THEN 'Sim'
+        WHEN C001 = '2' THEN 'Não'
+        ELSE 'Não aplicável'
+    END
+UNION ALL
+SELECT 
+    'Outubro' AS Mes,
+    CASE 
+        WHEN C001 = '1' THEN 'Sim'
+        WHEN C001 = '2' THEN 'Não'
+        ELSE 'Não aplicável'
+    END,
+    COUNT(*)
+FROM tb_outubro
+GROUP BY 
+    CASE 
+        WHEN C001 = '1' THEN 'Sim'
+        WHEN C001 = '2' THEN 'Não'
+        ELSE 'Não aplicável'
+    END
+UNION ALL
+SELECT 
+    'Novembro' AS Mes,
+    CASE 
+        WHEN C001 = '1' THEN 'Sim'
+        WHEN C001 = '2' THEN 'Não'
+        ELSE 'Não aplicável'
+    END,
+    COUNT(*)
+FROM tb_novembro
+GROUP BY 
+    CASE 
+        WHEN C001 = '1' THEN 'Sim'
+        WHEN C001 = '2' THEN 'Não'
+        ELSE 'Não aplicável'
+    END;
+
+# Consulta Faixa_Renda
+WITH base AS (
+    SELECT 'Setembro' AS mes, C01011 FROM tb_setembro
+    UNION ALL
+    SELECT 'Outubro' AS mes, C01011 FROM tb_outubro
+    UNION ALL
+    SELECT 'Novembro' AS mes, C01011 FROM tb_novembro
+),
+
+faixa AS (
+    SELECT 
+        mes,
+        CASE 
+            WHEN C01011 = '00' THEN '0 - 100'
+            WHEN C01011 = '01' THEN '101 - 300'
+            WHEN C01011 = '02' THEN '301 - 600'
+            WHEN C01011 = '03' THEN '601 - 800'
+            WHEN C01011 = '04' THEN '801 - 1.600'
+            WHEN C01011 = '05' THEN '1.601 - 3.000'
+            WHEN C01011 = '06' THEN '3.001 - 10.000'
+            WHEN C01011 = '07' THEN '10.001 - 50.000'
+            WHEN C01011 = '08' THEN '50.001 - 100.000'
+            WHEN C01011 = '09' THEN 'Mais de 100.000'
+            ELSE 'Não aplicável'
+        END AS faixa_renda
+    FROM base
+),
+
+contagem AS (
+    SELECT 
+        mes,
+        faixa_renda,
+        COUNT(*) AS qtd
+    FROM faixa
+    GROUP BY mes, faixa_renda
+)
+
+SELECT 
+    faixa_renda,
+    SUM(qtd) AS Total
+FROM contagem
+GROUP BY faixa_renda
+ORDER BY faixa_renda;
+
+# Consulta Setor_Trabalho
+WITH base AS (
+    SELECT 'Setembro' AS mes, C007D FROM tb_setembro
+    UNION ALL
+    SELECT 'Outubro' AS mes, C007D FROM tb_outubro
+    UNION ALL
+    SELECT 'Novembro' AS mes, C007D FROM tb_novembro
+),
+
+atividade AS (
+    SELECT 
+        mes,
+        CASE 
+            WHEN C007D = '01' THEN 'Agricultura, pecuária, produção florestal e pesca'
+            WHEN C007D = '02' THEN 'Extração de petróleo, carvão mineral e minerais'
+            WHEN C007D = '03' THEN 'Indústria de transformação'
+            WHEN C007D = '04' THEN 'Eletricidade, gás, água e esgoto'
+            WHEN C007D = '05' THEN 'Construção'
+            WHEN C007D = '06' THEN 'Comércio'
+            WHEN C007D = '07' THEN 'Reparação de veículos'
+            WHEN C007D = '08' THEN 'Transporte de passageiros'
+            WHEN C007D = '09' THEN 'Transporte de mercadorias'
+            WHEN C007D = '10' THEN 'Armazenamento, correios e entregas'
+            WHEN C007D = '11' THEN 'Hospedagem'
+            WHEN C007D = '12' THEN 'Alimentação'
+            WHEN C007D = '13' THEN 'Informação e comunicação'
+            WHEN C007D = '14' THEN 'Bancos e seguros'
+            WHEN C007D = '15' THEN 'Atividades imobiliárias'
+            WHEN C007D = '16' THEN 'Serviços profissionais'
+            WHEN C007D = '17' THEN 'Serviços administrativos'
+            WHEN C007D = '18' THEN 'Administração pública'
+            WHEN C007D = '19' THEN 'Educação'
+            WHEN C007D = '20' THEN 'Saúde'
+            WHEN C007D = '21' THEN 'Organizações e associações'
+            WHEN C007D = '22' THEN 'Atividades artísticas e esportivas'
+            WHEN C007D = '23' THEN 'Serviços pessoais'
+            WHEN C007D = '24' THEN 'Serviço doméstico'
+            WHEN C007D = '25' THEN 'Outros'
+            ELSE 'Não aplicável'
+        END AS atividade_desc
+    FROM base
+),
+
+contagem AS (
+    SELECT 
+        mes,
+        atividade_desc,
+        COUNT(*) AS qtd
+    FROM atividade
+    GROUP BY mes, atividade_desc
+)
+
+SELECT 
+    atividade_desc,
+    SUM(qtd) AS soma
+FROM contagem
+GROUP BY atividade_desc
+ORDER BY soma DESC;
+
+# Consulta Qtd_Internados
+SELECT 
+    'Setembro' AS Mes,
+    CASE 
+        WHEN B005 = '1' THEN 'Sim'
+        WHEN B005 = '2' THEN 'Não'
+        WHEN B005 = '3' THEN 'Não foi atendido'
+        WHEN B005 = '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END AS Situacao,
+    COUNT(*) AS Quantidade
+FROM tb_setembro
+GROUP BY 
+    CASE 
+        WHEN B005 = '1' THEN 'Sim'
+        WHEN B005 = '2' THEN 'Não'
+        WHEN B005 = '3' THEN 'Não foi atendido'
+        WHEN B005 = '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END
+
+UNION ALL
+
+SELECT 
+    'Outubro' AS Mes,
+    CASE 
+        WHEN B005 = '1' THEN 'Sim'
+        WHEN B005 = '2' THEN 'Não'
+        WHEN B005 = '3' THEN 'Não foi atendido'
+        WHEN B005 = '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END,
+    COUNT(*)
+FROM tb_outubro
+GROUP BY 
+    CASE 
+        WHEN B005 = '1' THEN 'Sim'
+        WHEN B005 = '2' THEN 'Não'
+        WHEN B005 = '3' THEN 'Não foi atendido'
+        WHEN B005 = '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END
+UNION ALL
+SELECT 
+    'Novembro' AS Mes,
+    CASE 
+        WHEN B005 = '1' THEN 'Sim'
+        WHEN B005 = '2' THEN 'Não'
+        WHEN B005 = '3' THEN 'Não foi atendido'
+        WHEN B005 = '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END,
+    COUNT(*)
+FROM tb_novembro
+GROUP BY 
+    CASE 
+        WHEN B005 = '1' THEN 'Sim'
+        WHEN B005 = '2' THEN 'Não'
+        WHEN B005 = '3' THEN 'Não foi atendido'
+        WHEN B005 = '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END;
+
+# Consulta Sintomas
+WITH base AS (
+
+    -- Setembro
+    SELECT 'Febre' AS sintoma, COUNT(*) AS qtd FROM tb_setembro WHERE B0011 = '1'
+    UNION ALL
+    SELECT 'Tosse', COUNT(*) FROM tb_setembro WHERE B0012 = '1'
+    UNION ALL
+    SELECT 'Dor de garganta', COUNT(*) FROM tb_setembro WHERE B0013 = '1'
+    UNION ALL
+    SELECT 'Dificuldade para respirar', COUNT(*) FROM tb_setembro WHERE B0014 = '1'
+    UNION ALL
+    SELECT 'Dor de cabeça', COUNT(*) FROM tb_setembro WHERE B0015 = '1'
+    UNION ALL
+    SELECT 'Dor no peito', COUNT(*) FROM tb_setembro WHERE B0016 = '1'
+    UNION ALL
+    SELECT 'Náusea', COUNT(*) FROM tb_setembro WHERE B0017 = '1'
+    UNION ALL
+    SELECT 'Nariz entupido', COUNT(*) FROM tb_setembro WHERE B0018 = '1'
+    UNION ALL
+    SELECT 'Fadiga', COUNT(*) FROM tb_setembro WHERE B0019 = '1'
+    UNION ALL
+    SELECT 'Dor nos olhos', COUNT(*) FROM tb_setembro WHERE B00110 = '1'
+    UNION ALL
+    SELECT 'Perda de olfato/paladar', COUNT(*) FROM tb_setembro WHERE B00111 = '1'
+    UNION ALL
+    SELECT 'Dor muscular', COUNT(*) FROM tb_setembro WHERE B00112 = '1'
+
+    UNION ALL
+
+    -- Outubro
+    SELECT 'Febre', COUNT(*) FROM tb_outubro WHERE B0011 = '1'
+    UNION ALL
+    SELECT 'Tosse', COUNT(*) FROM tb_outubro WHERE B0012 = '1'
+    UNION ALL
+    SELECT 'Dor de garganta', COUNT(*) FROM tb_outubro WHERE B0013 = '1'
+    UNION ALL
+    SELECT 'Dificuldade para respirar', COUNT(*) FROM tb_outubro WHERE B0014 = '1'
+    UNION ALL
+    SELECT 'Dor de cabeça', COUNT(*) FROM tb_outubro WHERE B0015 = '1'
+    UNION ALL
+    SELECT 'Dor no peito', COUNT(*) FROM tb_outubro WHERE B0016 = '1'
+    UNION ALL
+    SELECT 'Náusea', COUNT(*) FROM tb_outubro WHERE B0017 = '1'
+    UNION ALL
+    SELECT 'Nariz entupido', COUNT(*) FROM tb_outubro WHERE B0018 = '1'
+    UNION ALL
+    SELECT 'Fadiga', COUNT(*) FROM tb_outubro WHERE B0019 = '1'
+    UNION ALL
+    SELECT 'Dor nos olhos', COUNT(*) FROM tb_outubro WHERE B00110 = '1'
+    UNION ALL
+    SELECT 'Perda de olfato/paladar', COUNT(*) FROM tb_outubro WHERE B00111 = '1'
+    UNION ALL
+    SELECT 'Dor muscular', COUNT(*) FROM tb_outubro WHERE B00112 = '1'
+
+    UNION ALL
+
+    -- Novembro
+    SELECT 'Febre', COUNT(*) FROM tb_novembro WHERE B0011 = '1'
+    UNION ALL
+    SELECT 'Tosse', COUNT(*) FROM tb_novembro WHERE B0012 = '1'
+    UNION ALL
+    SELECT 'Dor de garganta', COUNT(*) FROM tb_novembro WHERE B0013 = '1'
+    UNION ALL
+    SELECT 'Dificuldade para respirar', COUNT(*) FROM tb_novembro WHERE B0014 = '1'
+    UNION ALL
+    SELECT 'Dor de cabeça', COUNT(*) FROM tb_novembro WHERE B0015 = '1'
+    UNION ALL
+    SELECT 'Dor no peito', COUNT(*) FROM tb_novembro WHERE B0016 = '1'
+    UNION ALL
+    SELECT 'Náusea', COUNT(*) FROM tb_novembro WHERE B0017 = '1'
+    UNION ALL
+    SELECT 'Nariz entupido', COUNT(*) FROM tb_novembro WHERE B0018 = '1'
+    UNION ALL
+    SELECT 'Fadiga', COUNT(*) FROM tb_novembro WHERE B0019 = '1'
+    UNION ALL
+    SELECT 'Dor nos olhos', COUNT(*) FROM tb_novembro WHERE B00110 = '1'
+    UNION ALL
+    SELECT 'Perda de olfato/paladar', COUNT(*) FROM tb_novembro WHERE B00111 = '1'
+    UNION ALL
+    SELECT 'Dor muscular', COUNT(*) FROM tb_novembro WHERE B00112 = '1'
+)
+
+SELECT 
+    sintoma,
+    SUM(qtd) AS total_pessoas
+FROM base
+GROUP BY sintoma
+ORDER BY total_pessoas DESC;
+
+# Consulta Resultado_Testes
+WITH base AS (
+
+    SELECT B009B AS resultado FROM tb_setembro
+    UNION ALL
+    SELECT B009D FROM tb_setembro
+    UNION ALL
+    SELECT B009F FROM tb_setembro
+
+    UNION ALL
+
+    SELECT B009B FROM tb_outubro
+    UNION ALL
+    SELECT B009D FROM tb_outubro
+    UNION ALL
+    SELECT B009F FROM tb_outubro
+
+    UNION ALL
+
+    SELECT B009B FROM tb_novembro
+    UNION ALL
+    SELECT B009D FROM tb_novembro
+    UNION ALL
+    SELECT B009F FROM tb_novembro
+)
+SELECT 
+    CASE resultado
+        WHEN '1' THEN 'Positivo'
+        WHEN '2' THEN 'Negativo'
+        WHEN '3' THEN 'Inconclusivo'
+        WHEN '4' THEN 'Ainda não recebeu o resultado'
+        WHEN '9' THEN 'Ignorado'
+        ELSE 'Não aplicável'
+    END AS resultado_teste,
+    COUNT(*) AS total
+FROM base
+GROUP BY 1
+ORDER BY total DESC;
+
+# Consulta Medidas_Seguranca
+WITH base AS (
+
+    SELECT 'Setembro' AS mes, B011 AS resultado FROM tb_setembro
+    UNION ALL
+    SELECT 'Outubro', B011 FROM tb_outubro
+    UNION ALL
+    SELECT 'Novembro', B011 FROM tb_novembro
+
+),
+
+tratado AS (
+
+    SELECT 
+        mes,
+        CASE resultado
+            WHEN '1' THEN 'Vida normal'
+            WHEN '2' THEN 'Reduziu contato'
+            WHEN '3' THEN 'Sai só se necessário'
+            WHEN '4' THEN 'Rigorosamente em casa'
+            WHEN '9' THEN 'Ignorado'
+            ELSE 'Não aplicável'
+        END AS medida
+    FROM base
+
+)
+
+SELECT 
+    mes,
+    medida,
+    COUNT(*) AS total
+FROM tratado
+GROUP BY mes, medida
+ORDER BY mes, total DESC;
+
+# Consulta Publico_Privado
+WITH base AS (
+
+    SELECT B0042, B0043, B0044, B0045 FROM tb_setembro
+    UNION ALL
+    SELECT B0042, B0043, B0044, B0045 FROM tb_outubro
+    UNION ALL
+    SELECT B0042, B0043, B0044, B0045 FROM tb_novembro
+
+)
+
+SELECT 
+    SUM(CASE WHEN B0042 = '1' THEN 1 ELSE 0 END +
+        CASE WHEN B0043 = '1' THEN 1 ELSE 0 END) AS total_publico,
+
+    SUM(CASE WHEN B0044 = '1' THEN 1 ELSE 0 END +
+        CASE WHEN B0045 = '1' THEN 1 ELSE 0 END) AS total_privado
+
+FROM base;
