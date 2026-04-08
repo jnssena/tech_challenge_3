@@ -23,5 +23,5 @@ Através da plataforma da AWS foi possivel explorar os dados e organiza-los de f
 ### 3. Desenvolvimento e Análise:
 O desenvolvimento foi feito via Jupyter Notebook no qual os dados obtidos foram tratados para gerar insights através de graficos e elementos visuais que foram implementados na apresentação final
 
-### 3. Apresentação Final:
-A apresentação final está disponivel no arquivo "Tech_Challenge_Fase_3_Apresentacao_Final" no qual foram detalhados os procedimentos e as análises feitas de forma que ela também possa ser apresentada ao cliente final
+### 4. Apresentação Final:
+A apresentação final está disponivel no arquivo "Apresentacao Tech Challenge Fase 3" no qual foram detalhados os procedimentos e as análises feitas de forma que ela também possa ser apresentada ao cliente final
